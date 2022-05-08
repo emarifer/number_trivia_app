@@ -64,7 +64,7 @@ void main() {
 
   test('initialState debe ser Empty()', () {
     // assert
-    expect(bloc.initialState, equals(Empty()));
+    expect(bloc.initialState, equals(const NumberTriviaState.empty()));
   });
 
   group('GetTriviaForConcreteNumber', () {
@@ -90,7 +90,9 @@ void main() {
       when(() => mockInputConverter.stringToUnsignedInteger(any()))
           .thenReturn(Left(InvalidInputFailure()));
 
-      final expected = [const Error(message: invalidInputFailureMessage)];
+      final expected = [
+        const NumberTriviaState.error(message: invalidInputFailureMessage)
+      ];
 
       // assert later
       expectLater(bloc.stream, emitsInOrder(expected));
@@ -119,7 +121,10 @@ void main() {
       setUpMockGetConcreteNumberTriviaSuccess();
 
       // assert later
-      final expected = [Loading(), const Loaded(trivia: tNumberTrivia)];
+      final expected = [
+        const NumberTriviaState.loading(),
+        const NumberTriviaState.loaded(trivia: tNumberTrivia),
+      ];
       expectLater(bloc.stream, emitsInOrder(expected));
 
       // act
@@ -136,7 +141,10 @@ void main() {
           .thenAnswer((_) async => Left(ServerFailure()));
 
       //assert later
-      final expected = [Loading(), const Error(message: serverFailureMessage)];
+      final expected = [
+        const NumberTriviaState.loading(),
+        const NumberTriviaState.error(message: serverFailureMessage),
+      ];
       expectLater(bloc.stream, emitsInOrder(expected));
 
       // act
@@ -153,7 +161,10 @@ void main() {
           .thenAnswer((_) async => Left(CacheFailure()));
 
       //assert later
-      final expected = [Loading(), const Error(message: cacheFailureMessage)];
+      final expected = [
+        const NumberTriviaState.loading(),
+        const NumberTriviaState.error(message: cacheFailureMessage),
+      ];
       expectLater(bloc.stream, emitsInOrder(expected));
 
       // act
@@ -180,7 +191,10 @@ void main() {
       setUpMockGetRandomNumberTriviaSuccess();
 
       // assert later
-      final expected = [Loading(), const Loaded(trivia: tNumberTrivia)];
+      final expected = [
+        const NumberTriviaState.loading(),
+        const NumberTriviaState.loaded(trivia: tNumberTrivia),
+      ];
       expectLater(bloc.stream, emitsInOrder(expected));
 
       // act
@@ -195,7 +209,10 @@ void main() {
           .thenAnswer((_) async => Left(ServerFailure()));
 
       //assert later
-      final expected = [Loading(), const Error(message: serverFailureMessage)];
+      final expected = [
+        const NumberTriviaState.loading(),
+        const NumberTriviaState.error(message: serverFailureMessage),
+      ];
       expectLater(bloc.stream, emitsInOrder(expected));
 
       // act
@@ -210,7 +227,10 @@ void main() {
           .thenAnswer((_) async => Left(CacheFailure()));
 
       //assert later
-      final expected = [Loading(), const Error(message: cacheFailureMessage)];
+      final expected = [
+        const NumberTriviaState.loading(),
+        const NumberTriviaState.error(message: cacheFailureMessage),
+      ];
       expectLater(bloc.stream, emitsInOrder(expected));
 
       // act

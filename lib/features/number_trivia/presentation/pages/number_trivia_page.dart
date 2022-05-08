@@ -31,27 +31,13 @@ class NumberTriviaPge extends StatelessWidget {
               const SizedBox(height: 10),
               // Top half
               BlocBuilder<NumberTriviaBloc, NumberTriviaState>(
-                builder: (context, state) {
-                  if (state is Empty) {
-                    return const MessageDisplay(
-                      message: 'Start searching!',
-                    );
-                  } else if (state is Loading) {
-                    return const LoadingWidget();
-                  } else if (state is Loaded) {
-                    return TriviaDisplay(
-                      trivia: state.trivia,
-                    );
-                  } else if (state is Error) {
-                    return MessageDisplay(
-                      message: state.message,
-                    );
-                  }
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height / 3,
-                    child: const Placeholder(),
-                  );
-                },
+                builder: (context, state) => state.when(
+                  empty: () =>
+                      const MessageDisplay(message: 'Start searching!'),
+                  loading: () => const LoadingWidget(),
+                  loaded: (trivia) => TriviaDisplay(trivia: trivia),
+                  error: (message) => MessageDisplay(message: message),
+                ),
               ),
 
               const SizedBox(height: 20),

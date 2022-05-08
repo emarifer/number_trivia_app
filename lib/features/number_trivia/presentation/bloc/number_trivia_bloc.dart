@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -9,7 +10,8 @@ import '../../domain/usecases/get_concrete_number_trivia.dart';
 import '../../domain/usecases/get_random_number_trivia.dart';
 
 part 'number_trivia_event.dart';
-part 'number_trivia_state.dart';
+
+part 'number_trivia_bloc.freezed.dart';
 
 const serverFailureMessage = 'Server Failure';
 const cacheFailureMessage = 'Cache Failure';
@@ -22,39 +24,40 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
   final GetRandomNumberTrivia getRandomNumberTrivia;
   final InputConverter inputConverter;
 
-  NumberTriviaState get initialState => Empty();
+  NumberTriviaState get initialState => const NumberTriviaState.empty();
 
   NumberTriviaBloc({
     required this.getConcreteNumberTrivia,
     required this.getRandomNumberTrivia,
     required this.inputConverter,
-  }) : super(Empty()) {
+  }) : super(const NumberTriviaState.empty()) {
     on<GetTriviaForConcreteNumber>((event, emit) async {
       final inputEither =
           inputConverter.stringToUnsignedInteger(event.numberString);
       await inputEither.fold(
-        (_) async => emit(const Error(message: invalidInputFailureMessage)),
-        // Aunque el "caso de éxito" no nos interesa con la prueba actual,
-        // todavía tenemos que manejarlo de alguna manera.
+        (_) async => emit(
+          const NumberTriviaState.error(message: invalidInputFailureMessage),
+        ),
         (integer) async {
-          emit(Loading());
+          emit(const NumberTriviaState.loading());
           final failureOrTrivia =
               await getConcreteNumberTrivia(Params(number: integer));
           await failureOrTrivia.fold(
-            (failure) async =>
-                emit(Error(message: _mapFailureToMessage(failure))),
-            (trivia) async => emit(Loaded(trivia: trivia)),
+            (failure) async => emit(NumberTriviaState.error(
+                message: _mapFailureToMessage(failure))),
+            (trivia) async => emit(NumberTriviaState.loaded(trivia: trivia)),
           );
         },
       );
     });
 
     on<GetTriviaForRandomNumber>((event, emit) async {
-      emit(Loading());
+      emit(const NumberTriviaState.loading());
       final failureOrTrivia = await getRandomNumberTrivia(NoParams());
       await failureOrTrivia.fold(
-        (failure) async => emit(Error(message: _mapFailureToMessage(failure))),
-        (trivia) async => emit(Loaded(trivia: trivia)),
+        (failure) async => emit(
+            NumberTriviaState.error(message: _mapFailureToMessage(failure))),
+        (trivia) async => emit(NumberTriviaState.loaded(trivia: trivia)),
       );
     });
   }
@@ -69,4 +72,13 @@ String _mapFailureToMessage(Failure failure) {
     default:
       return 'Unexpected error';
   }
+}
+
+@freezed
+abstract class NumberTriviaState with _$NumberTriviaState {
+  const factory NumberTriviaState.empty() = _Empty;
+  const factory NumberTriviaState.loading() = _Loading;
+  const factory NumberTriviaState.loaded({required NumberTrivia trivia}) =
+      _Loaded;
+  const factory NumberTriviaState.error({required String message}) = _Error;
 }
