@@ -10,7 +10,7 @@ import '../../domain/usecases/get_concrete_number_trivia.dart';
 import '../../domain/usecases/get_random_number_trivia.dart';
 
 part 'number_trivia_event.dart';
-
+part 'number_trivia_state.dart';
 part 'number_trivia_bloc.freezed.dart';
 
 const serverFailureMessage = 'Server Failure';
@@ -72,13 +72,4 @@ String _mapFailureToMessage(Failure failure) {
     default:
       return 'Unexpected error';
   }
-}
-
-@freezed
-abstract class NumberTriviaState with _$NumberTriviaState {
-  const factory NumberTriviaState.empty() = _Empty;
-  const factory NumberTriviaState.loading() = _Loading;
-  const factory NumberTriviaState.loaded({required NumberTrivia trivia}) =
-      _Loaded;
-  const factory NumberTriviaState.error({required String message}) = _Error;
 }
